@@ -12,11 +12,13 @@ import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import tw.Max.Class.MyClock;
 import tw.Max.Class.MyPainter;
 
 public class Painter extends JFrame {
-	private JButton clear, undo, redo, save, obj;
+	private JButton clear, undo, redo, saveJPG, saveObj, loadObj;
 	private MyPainter myPainter;
+	private MyClock myClock;
 	
 	public Painter() {
 		// 定義視窗
@@ -31,6 +33,10 @@ public class Painter extends JFrame {
 		myPainter = new MyPainter();
 		add(myPainter, BorderLayout.CENTER);
 		
+		// 時鐘
+		myClock = new MyClock();
+		top.add(myClock);
+		
 		// 清除鍵
 		clear = new JButton("Clear");
 		top.add(clear);
@@ -44,15 +50,19 @@ public class Painter extends JFrame {
 		top.add(redo);
 		
 		// save
-		save = new JButton("Save");
-		top.add(save);
+		saveJPG = new JButton("Save JPG");
+		top.add(saveJPG);
 		
-		// obj
-		obj = new JButton("Object");
-		top.add(obj);
+		// saveObj
+		saveObj = new JButton("Save Object");
+		top.add(saveObj);
+		
+		// load
+		loadObj = new JButton("Load Object");
+		top.add(loadObj);
 		
 		
-		setSize(640, 480);
+		setSize(720, 480);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
@@ -81,17 +91,24 @@ public class Painter extends JFrame {
 			}
 		});
 		
-		save.addActionListener(new ActionListener() {
+		saveJPG.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				save();
+				saveJPG();
 			}
 		});
 		
-		obj.addActionListener(new ActionListener() {
+		saveObj.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				obj();
+				saveObj();
+			}
+		});
+		
+		loadObj.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadObj();
 			}
 		});
 	}
@@ -109,22 +126,48 @@ public class Painter extends JFrame {
 	}
 	
 	// BufferedImage.TYPE_INT_BGR 基本款
-	private void save() {
+	private void saveJPG() {
 		BufferedImage img = new BufferedImage(myPainter.getWidth(),  // 放入BufferedImage
 				myPainter.getHeight(), BufferedImage.TYPE_INT_BGR);
 		Graphics g = img.createGraphics(); // 產生Graphics
 		myPainter.paint(g); // 重新渲染，不渲染的話會一片空的，沒有畫面
 		
-		try {
-			ImageIO.write(img, "jpg", new File("dir1/Max.jpg")); // 產生檔案
-			JOptionPane.showMessageDialog(null, "儲存成功");
-		} catch (Exception e) {
-			System.out.println(e.toString());
+		JFileChooser jfc = new JFileChooser();
+		if (jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+			File file = jfc.getSelectedFile();
+			try {
+				ImageIO.write(img, "jpg", new File(file.toString().concat(".jpg"))); // 產生檔案
+				JOptionPane.showMessageDialog(null, "儲存成功");
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "儲存失敗");
+			}
 		}
 	}
 	
-	private void obj() {
-		
+	private void saveObj() {
+		JFileChooser jfc = new JFileChooser();
+		if (jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+			File file = jfc.getSelectedFile();
+			try {
+				myPainter.saveLines(file);
+				JOptionPane.showMessageDialog(null, "儲存成功");
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "儲存失敗");
+			}
+		}
+	}
+	
+	private void loadObj() {
+		JFileChooser jfc = new JFileChooser();
+		if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			File file = jfc.getSelectedFile();
+			try {
+				myPainter.loadLines(file);
+				JOptionPane.showMessageDialog(null, "載入成功");
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "載入失敗");
+			}
+		}
 	}
 
 	public static void main(String[] args) {

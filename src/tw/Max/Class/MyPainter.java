@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
+import java.io.*;
 import java.util.LinkedList;
 
 import javax.swing.JPanel;
@@ -81,5 +82,24 @@ public class MyPainter extends JPanel {
 			lines.add(recycle.removeLast());
 			repaint();
 		}
+	}
+	
+	public void saveLines(File saveFile) throws Exception {
+		ObjectOutputStream oout = 
+			new ObjectOutputStream(
+				new FileOutputStream(saveFile));
+		oout.writeObject(lines);
+		oout.flush();
+		oout.close();
+	}
+	
+	public void loadLines(File loadFile) throws Exception {
+		ObjectInputStream oin = 
+				new ObjectInputStream(
+					new FileInputStream(loadFile));
+		Object obj = oin.readObject(); // 讀入 記憶體內佔一塊
+		oin.close();
+		lines = (LinkedList<LinkedList<HashMap<String, Integer>>>) obj;
+		repaint();
 	}
 }
